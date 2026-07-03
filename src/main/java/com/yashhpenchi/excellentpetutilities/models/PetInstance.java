@@ -131,7 +131,7 @@ public class PetInstance {
         private final PetType type;
         private final int slotIndex;
 
-        private int level = 1;
+        private int level = 0;
         private double hunger = 100.0;
         private PetState state = PetState.ACTIVE;
         private Personality personality = Personality.LOYAL;

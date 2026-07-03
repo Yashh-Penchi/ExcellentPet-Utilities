@@ -1,8 +1,10 @@
 package com.yashhpenchi.excellentpetutilities.managers;
 
 import com.yashhpenchi.excellentpetutilities.models.PetInstance;
+import com.yashhpenchi.excellentpetutilities.models.PetType;
 import com.yashhpenchi.excellentpetutilities.storage.PetRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +57,18 @@ public class PetManager {
 
     public Optional<PetInstance> getPet(UUID petUUID) {
         return Optional.ofNullable(petsByUUID.get(petUUID));
+    }
+
+    // slot numbers are per pet type, per your spec's "Wolf #1 / Wolf #2 / Fox #1" example
+    public int nextSlotIndex(UUID ownerUUID, PetType type) {
+        return (int) getPets(ownerUUID).stream().filter(pet -> pet.getType() == type).count() + 1;
+    }
+
+    // adds a brand new pet to the cache and persists it - used when a pet is tamed
+    public CompletableFuture<Void> registerNewPet(PetInstance pet) {
+        petsByOwner.computeIfAbsent(pet.getOwnerUUID(), key -> new ArrayList<>()).add(pet);
+        petsByUUID.put(pet.getPetUUID(), pet);
+        return petRepository.save(pet);
     }
 
     // persists to SQLite; the passed-in instance is already the cached

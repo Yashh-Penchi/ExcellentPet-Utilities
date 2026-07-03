@@ -1,6 +1,8 @@
 package com.yashhpenchi.excellentpetutilities;
 
 import com.yashhpenchi.excellentpetutilities.commands.ExpetCommand;
+import com.yashhpenchi.excellentpetutilities.items.UpgradeCardItem;
+import com.yashhpenchi.excellentpetutilities.listeners.PetUpgradeListener;
 import com.yashhpenchi.excellentpetutilities.listeners.PlayerConnectionListener;
 import com.yashhpenchi.excellentpetutilities.managers.PetManager;
 import com.yashhpenchi.excellentpetutilities.services.PetLifecycleService;
@@ -20,6 +22,7 @@ public class ExcellentPetUtilities extends JavaPlugin {
     private PetRepository petRepository;
     private PetLifecycleService petLifecycleService;
     private PetManager petManager;
+    private UpgradeCardItem upgradeCardItem;
 
     @Override
     public void onEnable() {
@@ -39,8 +42,10 @@ public class ExcellentPetUtilities extends JavaPlugin {
         petRepository = new SqlitePetRepository(databaseManager);
         petLifecycleService = new PetLifecycleServiceImpl(petRepository);
         petManager = new PetManager(petRepository);
+        upgradeCardItem = new UpgradeCardItem(this);
 
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(petManager), this);
+        getServer().getPluginManager().registerEvents(new PetUpgradeListener(petManager, upgradeCardItem), this);
         registerCommands();
 
         // covers the case where the plugin is enabled while players are
@@ -56,7 +61,7 @@ public class ExcellentPetUtilities extends JavaPlugin {
     private void registerCommands() {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             Commands commands = event.registrar();
-            commands.register("expet", "ExcellentPetUtilities main command", new ExpetCommand());
+            commands.register("expet", "ExcellentPetUtilities main command", new ExpetCommand(petManager, upgradeCardItem));
         });
     }
 

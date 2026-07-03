@@ -25,6 +25,10 @@ tasks {
         options.encoding = "UTF-8"
     }
 
+    jar {
+        enabled = false
+    }
+
     shadowJar {
         archiveClassifier.set("")
         // relocate sqlite-jdbc so it never collides with other plugins shading the same lib
